@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1698255071 source:c:\c++ p5\hw5\main.cpp
+	<iostream>
+	<cmath>
+	<GL/glut.h>
+
