@@ -1,16 +1,22 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#include <GL/glut.h>
 
 using namespace std;
 
+double x_before, y_before, z_before; // Koordinat sebelum transformasi
+double x_after, y_after, z_after;   // Koordinat setelah transformasi
+
 void multiplyMatrix3D(double matrixA[4][4], double matrixB[4], double resultMatrix[4]) {
     for (int i = 0; i < 4; ++i) {
+        resultMatrix[i] = 0;  // Initialize to zero
         for (int j = 0; j < 4; ++j) {
             resultMatrix[i] += matrixA[i][j] * matrixB[j];
         }
     }
 }
+
 
 void translasi3D(double tx, double ty, double tz, double &x, double &y, double &z) {
     double translationMatrix[4][4] = {
@@ -23,7 +29,6 @@ void translasi3D(double tx, double ty, double tz, double &x, double &y, double &
     double pointMatrix[4] = {x, y, z, 1};
     double resultMatrix[4] = {0};
 
-    cout << "Matriks Translasi:\n";
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
             cout << translationMatrix[i][j] << " ";
@@ -40,12 +45,21 @@ void translasi3D(double tx, double ty, double tz, double &x, double &y, double &
             cout << "   [1]\n";
         }
     }
-
     multiplyMatrix3D(translationMatrix, pointMatrix, resultMatrix);
-    cout << "Hasil Translasi Titik P: (" << x << ", " << y << ", " << z << ") -> (" << resultMatrix[0] << ", " << resultMatrix[1] << ", " << resultMatrix[2] << ")\n";
-    x = resultMatrix[0];
-    y = resultMatrix[1];
-    z = resultMatrix[2];
+
+    x_before = x;
+    y_before = y;
+    z_before = z;
+
+    x_after = resultMatrix[0];
+    y_after = resultMatrix[1];
+    z_after = resultMatrix[2];
+
+    x = x_after;
+    y = y_after;
+    z = z_after;
+    // Tampilkan hasi
+    cout << "Hasil Translasi Titik P: (" << x_before << ", " << y_before << ", " << z_before << ") -> (" << x_after << ", " << y_after << ", " << z_after << ")\n";
 }
 
 void skala3D(double sx, double sy, double sz, double &x, double &y, double &z) {
@@ -59,7 +73,6 @@ void skala3D(double sx, double sy, double sz, double &x, double &y, double &z) {
     double pointMatrix[4] = {x, y, z, 1};
     double resultMatrix[4] = {0};
 
-    cout << "Matriks Skala:\n";
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
             cout << scaleMatrix[i][j] << " ";
@@ -78,10 +91,19 @@ void skala3D(double sx, double sy, double sz, double &x, double &y, double &z) {
     }
 
     multiplyMatrix3D(scaleMatrix, pointMatrix, resultMatrix);
-    cout << "Hasil Skala Titik P: (" << x << ", " << y << ", " << z << ") -> (" << resultMatrix[0] << ", " << resultMatrix[1] << ", " << resultMatrix[2] << ")\n";
-    x = resultMatrix[0];
-    y = resultMatrix[1];
-    z = resultMatrix[2];
+    x_before = x;
+    y_before = y;
+    z_before = z;
+
+    x_after = resultMatrix[0];
+    y_after = resultMatrix[1];
+    z_after = resultMatrix[2];
+
+    x = x_after;
+    y = y_after;
+    z = z_after;
+    // Tampilkan hasi
+    cout << "Hasil Translasi Titik P: (" << x_before << ", " << y_before << ", " << z_before << ") -> (" << x_after << ", " << y_after << ", " << z_after << ")\n";
 }
 
 void rotasi3D(double angleX, double angleY, double angleZ, double &x, double &y, double &z) {
@@ -187,13 +209,70 @@ void rotasi3D(double angleX, double angleY, double angleZ, double &x, double &y,
     }
 
     multiplyMatrix3D(rotationMatrixZ, pointMatrix, resultMatrix);
-    cout << "Hasil Rotasi Titik P: (" << x << ", " << y << ", " << z << ") -> (" << resultMatrix[0] << ", " << resultMatrix[1] << ", " << resultMatrix[2] << ")\n";
-    x = resultMatrix[0];
-    y = resultMatrix[1];
-    z = resultMatrix[2];
+
+    x_before = x;
+    y_before = y;
+    z_before = z;
+
+    x_after = resultMatrix[0];
+    y_after = resultMatrix[1];
+    z_after = resultMatrix[2];
+
+    x = x_after;
+    y = y_after;
+    z = z_after;
+    // Tampilkan hasi
+    cout << "Hasil Translasi Titik P: (" << x_before << ", " << y_before << ", " << z_before << ") -> (" << x_after << ", " << y_after << ", " << z_after << ")\n";
 }
 
-int main() {
+void drawAxes() {
+    glColor3f(1.0, 1.0, 1.0);
+    glBegin(GL_LINES);
+    glVertex3f(0, 0, 0);
+    glVertex3f(10, 0, 0);
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, 10, 0);
+    glVertex3f(0, 0, 0);
+    glVertex3f(0, 0, 10);
+    glEnd();
+}
+
+void drawObject(double x, double y, double z) {
+    glColor3f(1.0, 0.0, 0.0);
+    glutWireCube(1.0);
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    gluLookAt(5.0, 5.0, 15.0, 5.0, 5.0, 0.0, 0.0, 1.0, 0.0);
+
+    drawAxes();
+
+    // Gambar objek sebelum transformasi
+    glPushMatrix();
+    drawObject(x_before, y_before, z_before);
+    glPopMatrix();
+
+    // Gambar objek setelah transformasi
+    glPushMatrix();
+    drawObject(x_after, y_after, z_after);
+    glPopMatrix();
+
+    glutSwapBuffers();
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutCreateWindow("Transformasi 3D");
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glMatrixMode(GL_PROJECTION);
+    gluPerspective(45.0, 1.0, 1.0, 100.0);
+    glMatrixMode(GL_MODELVIEW);
+    glutDisplayFunc(display);
+
     int pilihan;
     double x, y, z;
 
@@ -259,6 +338,8 @@ int main() {
             cout << "Pilihan tidak valid.\n";
             return 1;
     }
+
+    glutMainLoop();
 
     return 0;
 }
